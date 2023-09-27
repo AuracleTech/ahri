@@ -66,4 +66,19 @@ impl Database {
             Err(VaultError::TableNotFound)
         }
     }
+
+    pub fn duplicate_table(&mut self, name: &str, new_name: &str) -> Result<(), VaultError> {
+        if self.check_table(new_name) {
+            return Err(VaultError::TableNameTaken);
+        }
+
+        if let Some(table) = self.tables.get(name) {
+            let mut table = table.clone();
+            table.name = new_name.to_string();
+            self.tables.insert(new_name.to_string(), table);
+            Ok(())
+        } else {
+            Err(VaultError::TableNotFound)
+        }
+    }
 }
