@@ -19,7 +19,7 @@ impl Database {
         }
     }
 
-    pub fn check_table(&self, name: &str) -> bool {
+    pub fn contains_table(&self, name: &str) -> bool {
         self.tables.contains_key(name)
     }
 
@@ -31,12 +31,12 @@ impl Database {
         self.tables.get_mut(name).ok_or(VaultError::TableNotFound)
     }
 
-    pub fn get_len(&self) -> usize {
+    pub fn table_count(&self) -> usize {
         self.tables.len()
     }
 
     pub fn new_table(&mut self, name: &str) -> Result<(), VaultError> {
-        if self.check_table(&name) {
+        if self.contains_table(&name) {
             return Err(VaultError::TableNameTaken);
         }
 
@@ -46,7 +46,7 @@ impl Database {
     }
 
     pub fn rename_table(&mut self, name: &str, new_name: &str) -> Result<(), VaultError> {
-        if self.check_table(new_name) {
+        if self.contains_table(new_name) {
             return Err(VaultError::TableNameTaken);
         }
 
@@ -68,7 +68,7 @@ impl Database {
     }
 
     pub fn duplicate_table(&mut self, name: &str, new_name: &str) -> Result<(), VaultError> {
-        if self.check_table(new_name) {
+        if self.contains_table(new_name) {
             return Err(VaultError::TableNameTaken);
         }
 

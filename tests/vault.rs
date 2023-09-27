@@ -25,7 +25,7 @@ fn serialize_deserialize() {
     assert_ne!(serialized_file_size, new_serialized_file_size);
 
     match Vault::deserialize(SAVE_PATH) {
-        Ok(vault_deserialized) => assert!(vault_deserialized.check_database(DATABASE_NAME)),
+        Ok(vault_deserialized) => assert!(vault_deserialized.contains_database(DATABASE_NAME)),
         Err(err) => panic!("Error: {}", err),
     }
 

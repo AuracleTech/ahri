@@ -11,6 +11,9 @@ pub enum VaultError {
 
     TableNameTaken,
     TableNotFound,
+
+    SerializationError(bincode::Error),
+    IoError(std::io::Error),
 }
 
 impl Error for VaultError {}
@@ -22,6 +25,9 @@ impl Display for VaultError {
 
             VaultError::TableNameTaken => write!(f, "Table name taken"),
             VaultError::TableNotFound => write!(f, "Table not found"),
+
+            VaultError::SerializationError(e) => write!(f, "Serialization error: {}", e),
+            VaultError::IoError(e) => write!(f, "IO error: {}", e),
         }
     }
 }
@@ -38,20 +44,22 @@ impl Vault {
         }
     }
 
-    pub fn deserialize(path: &str) -> Result<Self, Box<dyn Error>> {
-        let file = File::open(path)?;
-        let deserialized_data = bincode::deserialize_from(file)?;
+    pub fn deserialize(path: &str) -> Result<Self, VaultError> {
+        let file = File::open(path).map_err(VaultError::IoError)?;
+        let deserialized_data =
+            bincode::deserialize_from(file).map_err(VaultError::SerializationError)?;
         Ok(deserialized_data)
     }
 
     pub fn serialize(&self, path: &str) -> Result<(), Box<dyn Error>> {
-        let mut file = File::create(path)?;
-        let serialized_data = bincode::serialize(self)?;
-        file.write_all(&serialized_data)?;
+        let mut file = File::create(path).map_err(VaultError::IoError)?;
+        let serialized_data = bincode::serialize(self).map_err(VaultError::SerializationError)?;
+        file.write_all(&serialized_data)
+            .map_err(VaultError::IoError)?;
         Ok(())
     }
 
-    pub fn check_database(&self, name: &str) -> bool {
+    pub fn contains_database(&self, name: &str) -> bool {
         self.databases.contains_key(name)
     }
 
@@ -65,12 +73,12 @@ impl Vault {
             .ok_or(VaultError::DatabaseNotFound)
     }
 
-    pub fn get_len(&self) -> usize {
+    pub fn database_count(&self) -> usize {
         self.databases.len()
     }
 
     pub fn new_database(&mut self, name: &str) -> Result<(), VaultError> {
-        if self.check_database(name) {
+        if self.contains_database(name) {
             return Err(VaultError::DatabaseNameTaken);
         }
 
@@ -81,7 +89,7 @@ impl Vault {
     }
 
     pub fn rename_database(&mut self, name: &str, new_name: &str) -> Result<(), VaultError> {
-        if self.check_database(new_name) {
+        if self.contains_database(new_name) {
             return Err(VaultError::DatabaseNameTaken);
         }
 
@@ -95,7 +103,7 @@ impl Vault {
     }
 
     pub fn delete_database(&mut self, name: &str) -> Result<(), VaultError> {
-        if !self.check_database(name) {
+        if !self.contains_database(name) {
             return Err(VaultError::DatabaseNotFound);
         }
 
@@ -105,7 +113,7 @@ impl Vault {
     }
 
     pub fn duplicate_database(&mut self, name: &str, new_name: &str) -> Result<(), VaultError> {
-        if self.check_database(new_name) {
+        if self.contains_database(new_name) {
             return Err(VaultError::DatabaseNameTaken);
         }
 

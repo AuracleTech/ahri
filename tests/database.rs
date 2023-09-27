@@ -7,7 +7,7 @@ const DATABASE_RENAMED: &str = "riot games";
 fn create_database() {
     let mut vault = Vault::new();
     vault.new_database(DATABASE_NAME).unwrap();
-    assert!(vault.check_database(DATABASE_NAME));
+    assert!(vault.contains_database(DATABASE_NAME));
 }
 
 #[test]
@@ -33,8 +33,8 @@ fn rename_database() {
     vault
         .rename_database(DATABASE_NAME, DATABASE_RENAMED)
         .unwrap();
-    assert!(!vault.check_database(DATABASE_NAME));
-    assert!(vault.check_database(DATABASE_RENAMED));
+    assert!(!vault.contains_database(DATABASE_NAME));
+    assert!(vault.contains_database(DATABASE_RENAMED));
 }
 
 #[test]
@@ -63,8 +63,8 @@ fn duplicate_database() {
     vault
         .duplicate_database(DATABASE_NAME, DATABASE_RENAMED)
         .unwrap();
-    assert!(vault.check_database(DATABASE_NAME));
-    assert!(vault.check_database(DATABASE_RENAMED));
+    assert!(vault.contains_database(DATABASE_NAME));
+    assert!(vault.contains_database(DATABASE_RENAMED));
 }
 
 #[test]

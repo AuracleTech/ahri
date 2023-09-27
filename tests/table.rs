@@ -11,7 +11,7 @@ fn create_table() {
     vault.new_database(DATABASE_NAME).unwrap();
     let database = vault.get_mut_database(DATABASE_NAME).unwrap();
     database.new_table(TABLE_NAME).unwrap();
-    assert!(database.check_table(TABLE_NAME));
+    assert!(database.contains_table(TABLE_NAME));
 }
 
 #[test]
@@ -41,8 +41,8 @@ fn rename_table() {
     let database = vault.get_mut_database(DATABASE_NAME).unwrap();
     database.new_table(TABLE_NAME).unwrap();
     database.rename_table(TABLE_NAME, TABLE_RENAMED).unwrap();
-    assert!(!database.check_table(TABLE_NAME));
-    assert!(database.check_table(TABLE_RENAMED));
+    assert!(!database.contains_table(TABLE_NAME));
+    assert!(database.contains_table(TABLE_RENAMED));
 }
 
 #[test]
@@ -72,8 +72,8 @@ fn duplicate_table() {
     let database = vault.get_mut_database(DATABASE_NAME).unwrap();
     database.new_table(TABLE_NAME).unwrap();
     database.duplicate_table(TABLE_NAME, TABLE_RENAMED).unwrap();
-    assert!(database.check_table(TABLE_NAME));
-    assert!(database.check_table(TABLE_RENAMED));
+    assert!(database.contains_table(TABLE_NAME));
+    assert!(database.contains_table(TABLE_RENAMED));
 }
 
 #[test]
