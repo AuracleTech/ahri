@@ -64,3 +64,34 @@ fn rename_invalid_table() {
     let database = vault.get_mut_database(DATABASE_NAME).unwrap();
     database.rename_table(TABLE_NAME, TABLE_RENAMED).unwrap();
 }
+
+#[test]
+fn duplicate_table() {
+    let mut vault = Vault::new();
+    vault.new_database(DATABASE_NAME).unwrap();
+    let database = vault.get_mut_database(DATABASE_NAME).unwrap();
+    database.new_table(TABLE_NAME).unwrap();
+    database.duplicate_table(TABLE_NAME, TABLE_RENAMED).unwrap();
+    assert!(database.check_table(TABLE_NAME));
+    assert!(database.check_table(TABLE_RENAMED));
+}
+
+#[test]
+#[should_panic(expected = "TableNameTaken")]
+fn duplicate_table_to_taken_name() {
+    let mut vault = Vault::new();
+    vault.new_database(DATABASE_NAME).unwrap();
+    let database = vault.get_mut_database(DATABASE_NAME).unwrap();
+    database.new_table(TABLE_NAME).unwrap();
+    database.new_table(TABLE_RENAMED).unwrap();
+    database.duplicate_table(TABLE_NAME, TABLE_RENAMED).unwrap();
+}
+
+#[test]
+#[should_panic(expected = "TableNotFound")]
+fn duplicate_unknown_table() {
+    let mut vault = Vault::new();
+    vault.new_database(DATABASE_NAME).unwrap();
+    let database = vault.get_mut_database(DATABASE_NAME).unwrap();
+    database.duplicate_table(TABLE_NAME, TABLE_RENAMED).unwrap();
+}
