@@ -31,6 +31,10 @@ impl Database {
         self.tables.get_mut(name).ok_or(VaultError::TableNotFound)
     }
 
+    pub fn get_len(&self) -> usize {
+        self.tables.len()
+    }
+
     pub fn new_table(&mut self, name: &str) -> Result<(), VaultError> {
         if self.check_table(&name) {
             return Err(VaultError::TableNameTaken);
