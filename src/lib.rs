@@ -65,6 +65,10 @@ impl Vault {
             .ok_or(VaultError::DatabaseNotFound)
     }
 
+    pub fn get_len(&self) -> usize {
+        self.databases.len()
+    }
+
     pub fn new_database(&mut self, name: &str) -> Result<(), VaultError> {
         if self.check_database(name) {
             return Err(VaultError::DatabaseNameTaken);
