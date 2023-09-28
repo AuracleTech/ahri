@@ -1,6 +1,6 @@
 use ahri::Vault;
 
-const DATABASE_NAME: &str = "league of legends";
+const DATABASE_NAME: &str = "riot games";
 
 const TABLE_NAME: &str = "players";
 const TABLE_RENAMED: &str = "users";
