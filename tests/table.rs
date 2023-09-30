@@ -1,97 +1,79 @@
-use ahri::Vault;
+use ahri::Table;
+use serde::{Deserialize, Serialize};
 
-const DATABASE_NAME: &str = "riot games";
+const FOLDER: &str = "./prototyping/";
+const FILE_PATH: &str = "./prototyping/test.ahri";
 
-const TABLE_NAME: &str = "players";
-const TABLE_RENAMED: &str = "users";
+#[derive(Serialize, Deserialize, Debug)]
+struct User {
+    name: String,
+    age: u8,
+}
+
+#[test]
+fn serialize_deserialize() {
+    std::fs::create_dir_all(FOLDER).unwrap();
+
+    let structure = User {
+        name: "Undefined".to_string(),
+        age: 0,
+    };
+
+    let mut table = Table::from_structure(structure);
+    assert!(table.row_count() == 0);
+    table.to_file(FILE_PATH).unwrap();
+    let serialized_file_size = std::fs::metadata(FILE_PATH).unwrap().len();
+
+    table.insert(
+        "bob",
+        User {
+            name: "Bob".to_string(),
+            age: 30,
+        },
+    );
+    table.insert(
+        "alice",
+        User {
+            name: "Alice".to_string(),
+            age: 20,
+        },
+    );
+    table.to_file(FILE_PATH).unwrap();
+    let new_serialized_file_size = std::fs::metadata(FILE_PATH).unwrap().len();
+
+    assert!(new_serialized_file_size > serialized_file_size);
+
+    match Table::<User>::from_file(FILE_PATH) {
+        Ok(table) => assert!(table.row_count() == 2),
+        Err(err) => panic!("{}", err),
+    }
+
+    std::fs::remove_dir_all(FOLDER).unwrap();
+}
 
 #[test]
 fn create_table() {
-    let mut vault = Vault::new();
-    vault.new_database(DATABASE_NAME).unwrap();
-    let database = vault.get_mut_database(DATABASE_NAME).unwrap();
-    database.new_table(TABLE_NAME).unwrap();
-    assert!(database.contains_table(TABLE_NAME));
-}
+    let structure = User {
+        name: "Undefined".to_string(),
+        age: 0,
+    };
 
-#[test]
-#[should_panic(expected = "TableNameTaken")]
-fn create_existing_table() {
-    let mut vault = Vault::new();
-    vault.new_database(DATABASE_NAME).unwrap();
-    let database = vault.get_mut_database(DATABASE_NAME).unwrap();
-    database.new_table(TABLE_NAME).unwrap();
-    database.new_table(TABLE_NAME).unwrap();
-}
+    let mut table = Table::from_structure(structure);
+    assert!(table.row_count() == 0);
 
-#[test]
-#[should_panic(expected = "TableNotFound")]
-fn get_invalid_table() {
-    let mut vault = Vault::new();
-    vault.new_database(DATABASE_NAME).unwrap();
-    let database = vault.get_mut_database(DATABASE_NAME).unwrap();
-    database.new_table(TABLE_NAME).unwrap();
-    database.get_table(TABLE_RENAMED).unwrap();
-}
-
-#[test]
-fn rename_table() {
-    let mut vault = Vault::new();
-    vault.new_database(DATABASE_NAME).unwrap();
-    let database = vault.get_mut_database(DATABASE_NAME).unwrap();
-    database.new_table(TABLE_NAME).unwrap();
-    database.rename_table(TABLE_NAME, TABLE_RENAMED).unwrap();
-    assert!(!database.contains_table(TABLE_NAME));
-    assert!(database.contains_table(TABLE_RENAMED));
-}
-
-#[test]
-#[should_panic(expected = "TableNameTaken")]
-fn rename_table_to_taken_name() {
-    let mut vault = Vault::new();
-    vault.new_database(DATABASE_NAME).unwrap();
-    let database = vault.get_mut_database(DATABASE_NAME).unwrap();
-    database.new_table(TABLE_NAME).unwrap();
-    database.new_table(TABLE_RENAMED).unwrap();
-    database.rename_table(TABLE_RENAMED, TABLE_NAME).unwrap();
-}
-
-#[test]
-#[should_panic(expected = "TableNotFound")]
-fn rename_invalid_table() {
-    let mut vault = Vault::new();
-    vault.new_database(DATABASE_NAME).unwrap();
-    let database = vault.get_mut_database(DATABASE_NAME).unwrap();
-    database.rename_table(TABLE_NAME, TABLE_RENAMED).unwrap();
-}
-
-#[test]
-fn duplicate_table() {
-    let mut vault = Vault::new();
-    vault.new_database(DATABASE_NAME).unwrap();
-    let database = vault.get_mut_database(DATABASE_NAME).unwrap();
-    database.new_table(TABLE_NAME).unwrap();
-    database.duplicate_table(TABLE_NAME, TABLE_RENAMED).unwrap();
-    assert!(database.contains_table(TABLE_NAME));
-    assert!(database.contains_table(TABLE_RENAMED));
-}
-
-#[test]
-#[should_panic(expected = "TableNameTaken")]
-fn duplicate_table_to_taken_name() {
-    let mut vault = Vault::new();
-    vault.new_database(DATABASE_NAME).unwrap();
-    let database = vault.get_mut_database(DATABASE_NAME).unwrap();
-    database.new_table(TABLE_NAME).unwrap();
-    database.new_table(TABLE_RENAMED).unwrap();
-    database.duplicate_table(TABLE_NAME, TABLE_RENAMED).unwrap();
-}
-
-#[test]
-#[should_panic(expected = "TableNotFound")]
-fn duplicate_unknown_table() {
-    let mut vault = Vault::new();
-    vault.new_database(DATABASE_NAME).unwrap();
-    let database = vault.get_mut_database(DATABASE_NAME).unwrap();
-    database.duplicate_table(TABLE_NAME, TABLE_RENAMED).unwrap();
+    table.insert(
+        "bob",
+        User {
+            name: "Bob".to_string(),
+            age: 30,
+        },
+    );
+    table.insert(
+        "alice",
+        User {
+            name: "Alice".to_string(),
+            age: 20,
+        },
+    );
+    assert!(table.row_count() == 2);
 }
