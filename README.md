@@ -2,6 +2,13 @@
 
 ahri is a database 🗳
 
+##### Completed
+
+- [x] Database structure
+- [ ] Async support
+- [x] Serialization / Deserialization
+- [ ] ACID transactions
+
 ##### Example
 
 ```rust
@@ -80,4 +87,4 @@ Bookshelf: Table {
 
 ##### Performances
 
-to be evaluated
+creation of 4 tables and for each inserting 1000 entries in `766 µs`
